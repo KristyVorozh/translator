@@ -64,7 +64,7 @@ const Translator = () => {
         }
     }
     useEffect(() => {
-        axios.get("https://translator-q0cmypva4-kristyvorozh.vercel.app/dictionary").then((response) => {
+        axios.get("https://translator-irlwfoe8p-kristyvorozh.vercel.app/api/dictionary").then((response) => {
             console.log(response.data);
         });
     }, [])
