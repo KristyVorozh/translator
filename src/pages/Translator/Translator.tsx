@@ -6,6 +6,8 @@ import axios from "axios";
 
 const Translator = () => {
     const dictionaryList = JSON.parse(localStorage.getItem("translation") || "[]");
+    const baseUrl = window.location.origin;
+    console.log(baseUrl)
     const [russian, setRussian] = useState("");
     const [english, setEnglish] = useState("");
     // useEffect(() => {
@@ -64,7 +66,7 @@ const Translator = () => {
         }
     }
     useEffect(() => {
-        axios.get("https://translator-irlwfoe8p-kristyvorozh.vercel.app/api/dictionary").then((response) => {
+        axios.get(`${baseUrl}/dictionary`).then((response) => {
             console.log(response.data);
         });
     }, [])
