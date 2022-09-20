@@ -1,35 +1,32 @@
-import { Button, TextField } from '@mui/material';
+import { Autocomplete, Button, TextField } from '@mui/material';
 import { Box } from '@mui/system';
-import { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { DictionaryListType } from "../../types/types";
 
-const stylesField = {
-    mr: "40px",
-}
 const Main = () => {
+    const baseUrl = window.location.origin;
     const [russian, setRussian] = useState("");
     const [english, setEnglish] = useState("");
-    const dictionaryList = JSON.parse(localStorage.getItem("translation") || "[]");
+    const [dictionaryList, setDictionaryList] = useState<DictionaryListType[]>([])
+
+    useEffect(() => {
+        axios.get(`${baseUrl}/dictionary`).then((response) => {
+            setDictionaryList(response.data)
+        });
+    }, [baseUrl]);
 
     const translation = () => {
-        let dictionaryCheck = false;
         dictionaryList.forEach((v) => {
-            if (v.eng === english) {
+            if (v.eng.toLocaleUpperCase() === english.toLocaleUpperCase()) {
                 setRussian(v.rus)
-                dictionaryCheck = false;
-            } else if (v.rus === russian) {
+            } else if (v.rus.toLocaleUpperCase() === russian.toLocaleUpperCase()) {
                 setEnglish(v.eng)
-                dictionaryCheck = false;
-            } else {
-                dictionaryCheck = true;
             }
+            console.log(v.eng, english, v.rus, russian)
         })
-        if (dictionaryCheck) {
-            toast.error("Такого слова нет в словаре")
-            setEnglish("");
-            setRussian("");
-        }
     }
     const clearTranslation = () => {
         setRussian("");
@@ -46,8 +43,38 @@ const Main = () => {
             justifyContent: "center",
             display: "flex",
         }}>
-                <TextField value={russian} onChange={(e) => setRussian(e.target.value)} sx={{...stylesField}} label="Русский"/>
-                <TextField value={english} onChange={(e) => setEnglish(e.target.value)} sx={{...stylesField}} label="Агнлийский"/>
+                <Autocomplete 
+                freeSolo
+                sx={{width: "350px", mr: "20px"}}
+                inputValue={russian}
+                getOptionLabel={(option) => option}
+                onInputChange={(event, newInputValue) => {
+                    setRussian(newInputValue);
+                  }}
+                renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Русский"
+                    />
+                  )}
+                options={dictionaryList.map((option) => option.rus)}
+                />
+                <Autocomplete 
+                sx={{width: "350px"}}
+                inputValue={english}
+                getOptionLabel={(option) => option}
+                freeSolo
+                onInputChange={(event, newInputValue) => {
+                    setEnglish(newInputValue);
+                  }}
+                renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Английский"
+                    />
+                  )}
+                options={dictionaryList.map((option) => option.eng)}
+                />
             </Box>
             <Button onClick={translation} variant="contained" sx={{
                 width: "200px",
